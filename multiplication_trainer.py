@@ -22,8 +22,6 @@ if 'message' not in st.session_state:
     st.session_state.message = ""
 if 'show_success' not in st.session_state:
     st.session_state.show_success = False
-if 'waiting_for_next' not in st.session_state:
-    st.session_state.waiting_for_next = False
 if 'problem_key' not in st.session_state:
     st.session_state.problem_key = 0
 
@@ -55,7 +53,6 @@ def generate_problem():
     st.session_state.user_answer = ""
     st.session_state.message = ""
     st.session_state.show_success = False
-    st.session_state.waiting_for_next = False
     st.session_state.problem_key += 1  # Изменяем ключ для сброса поля ввода
 
 def check_answer():
@@ -75,7 +72,6 @@ def check_answer():
             st.session_state.problems_solved += 1
             st.session_state.message = "✅ Правильно! Молодец!"
             st.session_state.show_success = True
-            st.session_state.waiting_for_next = True
             
         else:
             st.session_state.message = "❌ К сожалению, ты ошибся! Попробуй еще раз"
@@ -96,7 +92,7 @@ def end_game():
     st.session_state.game_active = False
     st.session_state.current_problem = None
     st.session_state.message = ""
-    st.session_state.waiting_for_next = False
+    st.session_state.show_success = False
 
 # Основной интерфейс
 st.title("🧮 Тренажер умножения и деления")
@@ -104,10 +100,6 @@ st.title("🧮 Тренажер умножения и деления")
 if not st.session_state.game_active:
     # Стартовый экран
     st.markdown("Добро пожаловать в тренажер по умножению и делению!")
-    
-    # Показываем итоги предыдущей игры, если они есть
-    if st.session_state.problems_solved > 0:
-        st.success(f"🎉 Ты решил {st.session_state.score} из {st.session_state.problems_solved} примеров правильно!")
     
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -120,69 +112,66 @@ if not st.session_state.game_active:
             st.stop()
 
 else:
-    # Если ждем следующий пример после правильного ответа
-    if st.session_state.waiting_for_next:
-        if st.session_state.problems_solved < 20:
-            # Показываем сообщение об успехе и автоматически переходим к следующему примеру
-            st.success(st.session_state.message)
-            st.write("Загружаем следующий пример...")
-            generate_problem()
+    # Игровой интерфейс
+    # Простой счетчик вместо таблицы статистики
+    st.write(f"**Решено примеров: {st.session_state.problems_solved}/20**")
+    
+    st.markdown("---")
+    
+    # Текущая задача
+    if st.session_state.current_problem:
+        st.markdown(f"## {st.session_state.current_problem['text']}")
+        
+        # Поле для ввода ответа с уникальным ключом
+        user_input = st.text_input(
+            "Твой ответ:",
+            value="",
+            key=f"user_answer_{st.session_state.problem_key}",
+            placeholder="Введите число...",
+            label_visibility="collapsed"
+        )
+        
+        # Кнопка проверки
+        if st.button("🔍 Проверить ответ", use_container_width=True, type="primary"):
+            check_answer()
             st.rerun()
-        else:
-            # Завершаем игру после 20 примеров
-            st.balloons()
-            st.success("🎉 Ты отлично справляешься! 20 примеров решено!")
-            
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("🔄 Начать заново", use_container_width=True, type="primary"):
-                    start_game()
+        
+        # Сообщение о результате
+        if st.session_state.message:
+            if "✅" in st.session_state.message:
+                st.success(st.session_state.message)
+            elif "❌" in st.session_state.message:
+                st.error(st.session_state.message)
+            else:
+                st.warning(st.session_state.message)
+        
+        # Кнопка следующего примера (после правильного ответа)
+        if st.session_state.show_success:
+            if st.button("➡️ Следующий пример", use_container_width=True, type="primary"):
+                if st.session_state.problems_solved < 20:
+                    generate_problem()
                     st.rerun()
-            with col2:
-                if st.button("🏁 Завершить", use_container_width=True, type="secondary"):
+                else:
+                    # Завершаем игру после 20 примеров
                     end_game()
                     st.rerun()
     
-    # Игровой интерфейс (только если не ждем следующий пример)
-    elif not st.session_state.waiting_for_next:
-        # Статистика
-        col1, col2, col3 = st.columns(3)
+    # Завершение тренировки
+    if st.session_state.problems_solved >= 20:
+        st.balloons()
+        st.success("🎉 Ты отлично справляешься! 20 примеров решено!")
+        
+        col1, col2 = st.columns([1, 1])
         with col1:
-            st.metric("Решено примеров", f"{st.session_state.problems_solved}/20")
-        with col2:
-            st.metric("Правильных ответов", st.session_state.score)
-        with col3:
-            accuracy = (st.session_state.score / st.session_state.problems_solved * 100) if st.session_state.problems_solved > 0 else 0
-            st.metric("Точность", f"{accuracy:.0f}%")
-        
-        st.markdown("---")
-        
-        # Текущая задача
-        if st.session_state.current_problem:
-            st.markdown(f"## {st.session_state.current_problem['text']}")
-            
-            # Поле для ввода ответа с уникальным ключом
-            user_input = st.text_input(
-                "Твой ответ:",
-                value="",
-                key=f"user_answer_{st.session_state.problem_key}",
-                placeholder="Введите число...",
-                label_visibility="collapsed"
-            )
-            
-            # Кнопка проверки
-            if st.button("🔍 Проверить ответ", use_container_width=True, type="primary"):
-                check_answer()
+            if st.button("🔄 Начать заново", use_container_width=True, type="primary"):
+                start_game()
                 st.rerun()
-            
-            # Сообщение о результате (только если есть сообщение и не ждем следующий пример)
-            if st.session_state.message and not st.session_state.waiting_for_next:
-                if "❌" in st.session_state.message:
-                    st.error(st.session_state.message)
-                else:
-                    st.warning(st.session_state.message)
+        with col2:
+            if st.button("🏁 Завершить", use_container_width=True, type="secondary"):
+                end_game()
+                st.rerun()
 
-        st.markdown("---")
-        if st.button("⏹️ Прервать тренировку", type="secondary"):
-            end_game()
-            st.rerun()
+    st.markdown("---")
+    if st.button("⏹️ Прервать тренировку", type="secondary"):
+        end_game()
+        st.rerun()
