@@ -24,6 +24,8 @@ if 'show_success' not in st.session_state:
     st.session_state.show_success = False
 if 'problem_key' not in st.session_state:
     st.session_state.problem_key = 0
+if 'show_cat' not in st.session_state:
+    st.session_state.show_cat = False
 
 def generate_problem():
     """Генерирует новую задачу"""
@@ -60,7 +62,7 @@ def check_answer():
     user_input = st.session_state.get(f"user_answer_{st.session_state.problem_key}", "").strip()
     
     if not user_input:
-        st.session_state.message = "⚠️ Ты не написала ответ"
+        st.session_state.message = "⚠️ Ты не ответила :("
         return
     
     try:
@@ -74,10 +76,10 @@ def check_answer():
             st.session_state.show_success = True
             
         else:
-            st.session_state.message = "❌ К сожалению, ты ошиблась :( Попробуй еще раз"
+            st.session_state.message = "❌ К сожалению, ты ошиблась! Попробуй еще раз"
             
     except ValueError:
-        st.session_state.message = "⚠️ Ты написала число, а нужно цифру :)"
+        st.session_state.message = "⚠️ Нужно указать число"
 
 def start_game():
     """Начинает новую игру"""
@@ -85,6 +87,7 @@ def start_game():
     st.session_state.score = 0
     st.session_state.problems_solved = 0
     st.session_state.problem_key = 0
+    st.session_state.show_cat = False
     generate_problem()
 
 def end_game():
@@ -94,10 +97,35 @@ def end_game():
     st.session_state.message = ""
     st.session_state.show_success = False
 
+def show_cat_page():
+    """Показывает страницу с котиком"""
+    st.session_state.game_active = False
+    st.session_state.show_cat = True
+
+def return_to_start():
+    """Возвращает на стартовую страницу"""
+    st.session_state.game_active = False
+    st.session_state.show_cat = False
+
+# Проверяем, нужно ли показывать страницу с котиком
+if st.session_state.show_cat:
+    st.title("🐱 Мяу! Спасибо за тренировку!")
+    
+    # Добавляем изображение котика (используем URL с изображением кота)
+    st.image("https://cataas.com/cat", caption="Вот тебе котик за старания! 😊", use_column_width=True)
+    
+    st.markdown("---")
+    
+    if st.button("↩️ Вернуться к тренажеру", use_container_width=True, type="primary"):
+        return_to_start()
+        st.rerun()
+    
+    st.stop()
+
 # Основной интерфейс
 st.title("🧮 Тренажер умножения и деления")
 
-if not st.session_state.game_active:
+if not st.session_state.game_active and not st.session_state.show_cat:
     # Стартовый экран
     st.markdown("Добро пожаловать в тренажер по умножению и делению!")
     
@@ -108,8 +136,8 @@ if not st.session_state.game_active:
             st.rerun()
     with col2:
         if st.button("❌ Выйти", use_container_width=True, type="secondary"):
-            st.markdown("Ты молодец! Спасибо, что тренируешься регулярно :)")
-            st.stop()
+            show_cat_page()
+            st.rerun()
 
 else:
     # Игровой интерфейс
@@ -127,7 +155,7 @@ else:
             "Твой ответ:",
             value="",
             key=f"user_answer_{st.session_state.problem_key}",
-            placeholder="Укажи ответ...",
+            placeholder="Введи ответ...",
             label_visibility="collapsed"
         )
         
@@ -167,14 +195,11 @@ else:
                 start_game()
                 st.rerun()
         with col2:
-            if st.button("🏁 Завершить", use_container_width=True, type="secondary"):
-                end_game()
+            if st.button("🐱 Посмотреть котика", use_container_width=True, type="secondary"):
+                show_cat_page()
                 st.rerun()
 
     st.markdown("---")
     if st.button("⏹️ Прервать тренировку", type="secondary"):
-        end_game()
+        show_cat_page()
         st.rerun()
-
-
-
