@@ -112,7 +112,7 @@ if st.session_state.show_cat:
     st.title("🐱 Мяу! Спасибо за тренировку!")
     
     # Добавляем изображение котика (используем URL с изображением кота)
-    st.image("https://cataas.com/cat/cute", caption="Вот тебе котик за старания! 😊", use_container_width=True)
+    st.image("https://cataas.com/cat/says/hello?fontSize=50&fontColor=red", caption="Вот тебе котик за старания! 😊", use_container_width=True)
     
     st.markdown("---")
     
@@ -203,4 +203,5 @@ else:
     if st.button("⏹️ Прервать тренировку", type="secondary"):
         show_cat_page()
         st.rerun()
+
 
