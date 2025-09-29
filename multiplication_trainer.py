@@ -39,8 +39,8 @@ def generate_problem():
     else:  # деление
         # Гарантируем целочисленное деление
         second_number = random.randint(1, 10)
-        result = random.randint(0, 10)
-        first_number = second_number * result
+        first_number = random.randint(0, 10)
+        first_number =* second_number
         
         correct_answer = result
         problem_text = f"{first_number} : {second_number} = ?"
@@ -60,7 +60,7 @@ def check_answer():
     user_input = st.session_state.get(f"user_answer_{st.session_state.problem_key}", "").strip()
     
     if not user_input:
-        st.session_state.message = "⚠️ Введите ответ!"
+        st.session_state.message = "⚠️ Ты не написала ответ"
         return
     
     try:
@@ -74,10 +74,10 @@ def check_answer():
             st.session_state.show_success = True
             
         else:
-            st.session_state.message = "❌ К сожалению, ты ошибся! Попробуй еще раз"
+            st.session_state.message = "❌ К сожалению, ты ошиблась :( Попробуй еще раз"
             
     except ValueError:
-        st.session_state.message = "⚠️ Введите число!"
+        st.session_state.message = "⚠️ Ты написала число, а нужно цифру :)"
 
 def start_game():
     """Начинает новую игру"""
@@ -127,7 +127,7 @@ else:
             "Твой ответ:",
             value="",
             key=f"user_answer_{st.session_state.problem_key}",
-            placeholder="Введите число...",
+            placeholder="Укажи ответ...",
             label_visibility="collapsed"
         )
         
@@ -175,3 +175,4 @@ else:
     if st.button("⏹️ Прервать тренировку", type="secondary"):
         end_game()
         st.rerun()
+
