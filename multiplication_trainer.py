@@ -39,8 +39,8 @@ def generate_problem():
     else:  # деление
         # Гарантируем целочисленное деление
         second_number = random.randint(1, 10)
-        first_number = random.randint(0, 10)
-        first_number = second_number * first_number
+        result = random.randint(0, 10)
+        first_number = second_number * result
         
         correct_answer = result
         problem_text = f"{first_number} : {second_number} = ?"
@@ -175,5 +175,6 @@ else:
     if st.button("⏹️ Прервать тренировку", type="secondary"):
         end_game()
         st.rerun()
+
 
 
