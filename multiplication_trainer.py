@@ -38,13 +38,13 @@ if st.button("Проверить генерацию чисел"):
       #first_number = random.randint(0, 10)
       #second_number = random.randint(0, 10)
       #check_answer(f'{first_number} * {second_number}',
-                   first_number * second_number)
+                   #first_number * second_number)
     #elif operation == 'деление':
       #first_number = random.randint(0, 10)
       #second_number = random.randint(1, 10)
       #first_number *= second_number
       #check_answer(f'{first_number} : {second_number}',
-                   first_number / second_number)
+                   #first_number / second_number)
   #print('Ты отлично справляешься!')
 
 
@@ -55,4 +55,5 @@ if st.button("Проверить генерацию чисел"):
   #start = input('Хочешь продолжить? Да - нажми 1, Нет - нажми 2')
 #else:
   #print('Ты молодец! Спасибо, что тренируешься регулярно :)')
+
 
